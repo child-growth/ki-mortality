@@ -11,7 +11,7 @@ source(paste0(here::here(), "/0-config.R"))
 d <- readRDS(paste0(ghapdata_dir, "ki-manuscript-dataset.rds"))
 gc()
 
-d <- subset(d, select= c(studyid, country, subjid, agedays, dead, agedth, causedth, haz, whz, waz))
+d <- subset(d, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
 gc()
 
 
