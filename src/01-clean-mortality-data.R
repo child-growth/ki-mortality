@@ -6,6 +6,62 @@ rm(list=ls())
 source(paste0(here::here(), "/0-config.R"))
 
 
+# Incorporate DIVIDS into the analysis
+
+divids<-fread(paste0(ghapdata_dir,"FINAL.csv"), header = T,
+              drop = c( "AGEIMPFL",
+                        "BAZ", "HCAZ",      
+                        "REGCTRY", "REGCTYP",
+                        "HHID",    
+                        "FEEDING", "DURBRST", 
+                        "ENSTUNT", "FWTKG", "FBMI",
+                        "BRFEED", "SUMEP",   "SUMDIAR", "SUMDAYS",
+                        "PCTDIAR", "IMPSAN",  "SOAP",    "SAFEH2O", "H2OTIME",
+                        "CHICKEN", "COW",     "CATTLE",  "INCTOT", 
+                        "INCTOTU", "BFEDFL",  "EXBFEDFL","WEANFL",  "ANMLKFL", "PWMLKFL",
+                        "FORMLKFL","BOTTLEFL","H20FEDFL","OTHFEDFL","SLDFEDFL","NBFYES",   "CMFDINT", "DIARFL",  "LSSTLFL",
+                        "NUMLS",   "BLDSTLFL","DIARFL_R","LSSTFL_R","NUMLS_R", "BLDSTL_R",
+                        "DUR_R"))
+gc()
+
+colnames(divids) <- tolower(colnames(divids))
+
+# subset to only DIVIDS study
+dim(divids)
+divids <- divids[(studyid %in% c("DIVIDS"))]
+dim(divids)
+gc()
+
+# subset columns
+divids <- subset(divids, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
+gc()
+# drop all rows where both `haz`` and `waz` are missing 
+# ASK ANDREW 
+divids <- divids %>% filter(!(is.na(haz) & is.na(waz)))
+gc()
+
+divids$subjid <- as.character(divids$subjid)
+
+
+# Incorporate VITALPAK-Pregnancy and I-LINS Dyad Ghana into the analysis
+
+vitalpak_preg <- read.csv(paste0(other_mortality_path, "VITALPAK_Pregnancy.csv"))
+colnames(vitalpak_preg) <- tolower(colnames(vitalpak_preg))
+gc()
+# subset columns
+vitalpak_preg <- subset(vitalpak_preg, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
+gc()
+
+ilinsdyadghana <- read.csv(paste0(other_mortality_path, "full_ki1033518_DYAD_G_201809.csv"))
+colnames(ilinsdyadghana) <- tolower(colnames(ilinsdyadghana))
+gc()
+# subset columns
+ilinsdyadghana <- subset(ilinsdyadghana, select=c(studyid, country, subjid, sex, agedays, dead, agedth, haz, whz, waz))
+gc()
+# causedth missing from data
+
+
+##########################################################
 
 #read csv file
 d <- readRDS(paste0(ghapdata_dir, "ki-manuscript-dataset.rds"))
@@ -14,7 +70,9 @@ gc()
 d <- subset(d, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
 gc()
 
-
+tail(d)
+d <- rbind(d, divids, vitalpak_preg)
+tail(d)
 dim(d)
 d <- d %>% filter(!is.na(dead) | !is.na(agedth) | !is.na(causedth))
 dim(d)
@@ -49,6 +107,15 @@ d <- d %>% filter(!is.na(agedth))
 #Create an indicator for when age of death is imputed.
 
 saveRDS(d, mortality_age_path)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -122,70 +189,6 @@ saveRDS(d, mortality_age_path)
 # table(mort$dead[mort$studyid %in% c("iLiNS-DOSE", "iLiNS-DYAD-M","JiVitA-3","JiVitA-4","Keneba", "SAS-CompFeed","VITAMIN-A","ZVITAMBO")])
 # prop.table(table(mort$dead[mort$studyid %in% c("iLiNS-DOSE", "iLiNS-DYAD-M","JiVitA-3","JiVitA-4","Keneba", "SAS-CompFeed","VITAMIN-A","ZVITAMBO")]))
 # 
-
-
-
-
-
-# Incorporate DIVIDS, VITALPAK-Pregnancy, and I-LINS Dyad Ghana into the analysis
-
-divids<-fread(paste0(ghapdata_dir,"FINAL.csv"), header = T,
-         drop = c( "AGEIMPFL",
-                   "BAZ", "HCAZ",      
-                   "REGCTRY", "REGCTYP",
-                   "HHID",    
-                   "FEEDING", "DURBRST", 
-                   "ENSTUNT", "FWTKG", "FBMI",
-                   "BRFEED", "SUMEP",   "SUMDIAR", "SUMDAYS",
-                   "PCTDIAR", "IMPSAN",  "SOAP",    "SAFEH2O", "H2OTIME",
-                   "CHICKEN", "COW",     "CATTLE",  "INCTOT", 
-                   "INCTOTU", "BFEDFL",  "EXBFEDFL","WEANFL",  "ANMLKFL", "PWMLKFL",
-                   "FORMLKFL","BOTTLEFL","H20FEDFL","OTHFEDFL","SLDFEDFL","NBFYES",   "CMFDINT", "DIARFL",  "LSSTLFL",
-                   "NUMLS",   "BLDSTLFL","DIARFL_R","LSSTFL_R","NUMLS_R", "BLDSTL_R",
-                   "DUR_R"))
-gc()
-
-colnames(divids) <- tolower(colnames(divids))
-gc()
-
-
-# subset to only DIVIDS study
-dim(divids)
-divids <- divids[(studyid %in% c("DIVIDS"))]
-dim(divids)
-gc()
-
-# drop all rows where both `haz`` and `waz` are missing 
-# ASK ANDREW 
-divids <- divids %>% filter(!(is.na(haz) & is.na(waz)))
-gc()
-
-
-###############################
-
-othermortality_dir = "/data/KI/UCB-SuperLearner/other mortality datasets/"
-
-vitalpak_preg <- read.csv(paste0(othermortality_dir, "VITALPAK_Pregnancy.csv"))
-colnames(vitalpak_preg) <- tolower(colnames(vitalpak_preg))
-gc()
-
-ilinsdyadghana <- read.csv(paste0(othermortality_dir, "full_ki1033518_DYAD_G_201809.csv"))
-colnames(ilinsdyadghana) <- tolower(colnames(ilinsdyadghana))
-gc()
-
-View(ilinsdyadghana)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
