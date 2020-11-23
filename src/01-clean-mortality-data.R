@@ -52,13 +52,6 @@ saveRDS(d, mortality_age_path)
 
 
 
-
-
-
-
-
-
-
 # 
 # #make sure dataset is time-static and subset to 1 observation
 # # add minimum Z-scores, mean, and number of stunted or wasted obs
@@ -129,6 +122,69 @@ saveRDS(d, mortality_age_path)
 # table(mort$dead[mort$studyid %in% c("iLiNS-DOSE", "iLiNS-DYAD-M","JiVitA-3","JiVitA-4","Keneba", "SAS-CompFeed","VITAMIN-A","ZVITAMBO")])
 # prop.table(table(mort$dead[mort$studyid %in% c("iLiNS-DOSE", "iLiNS-DYAD-M","JiVitA-3","JiVitA-4","Keneba", "SAS-CompFeed","VITAMIN-A","ZVITAMBO")]))
 # 
+
+
+
+
+
+# Incorporate DIVIDS, VITALPAK-Pregnancy, and I-LINS Dyad Ghana into the analysis
+
+divids<-fread(paste0(ghapdata_dir,"FINAL.csv"), header = T,
+         drop = c( "AGEIMPFL",
+                   "BAZ", "HCAZ",      
+                   "REGCTRY", "REGCTYP",
+                   "HHID",    
+                   "FEEDING", "DURBRST", 
+                   "ENSTUNT", "FWTKG", "FBMI",
+                   "BRFEED", "SUMEP",   "SUMDIAR", "SUMDAYS",
+                   "PCTDIAR", "IMPSAN",  "SOAP",    "SAFEH2O", "H2OTIME",
+                   "CHICKEN", "COW",     "CATTLE",  "INCTOT", 
+                   "INCTOTU", "BFEDFL",  "EXBFEDFL","WEANFL",  "ANMLKFL", "PWMLKFL",
+                   "FORMLKFL","BOTTLEFL","H20FEDFL","OTHFEDFL","SLDFEDFL","NBFYES",   "CMFDINT", "DIARFL",  "LSSTLFL",
+                   "NUMLS",   "BLDSTLFL","DIARFL_R","LSSTFL_R","NUMLS_R", "BLDSTL_R",
+                   "DUR_R"))
+gc()
+
+colnames(divids) <- tolower(colnames(divids))
+gc()
+
+
+# subset to only DIVIDS study
+dim(divids)
+divids <- divids[(studyid %in% c("DIVIDS"))]
+dim(divids)
+gc()
+
+# drop all rows where both `haz`` and `waz` are missing 
+# ASK ANDREW 
+divids <- divids %>% filter(!(is.na(haz) & is.na(waz)))
+gc()
+
+
+###############################
+
+othermortality_dir = "/data/KI/UCB-SuperLearner/other mortality datasets/"
+
+vitalpak_preg <- read.csv(paste0(othermortality_dir, "VITALPAK_Pregnancy.csv"))
+colnames(vitalpak_preg) <- tolower(colnames(vitalpak_preg))
+gc()
+
+ilinsdyadghana <- read.csv(paste0(othermortality_dir, "full_ki1033518_DYAD_G_201809.csv"))
+colnames(ilinsdyadghana) <- tolower(colnames(ilinsdyadghana))
+gc()
+
+View(ilinsdyadghana)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
