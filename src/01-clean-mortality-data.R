@@ -6,7 +6,7 @@ rm(list=ls())
 source(paste0(here::here(), "/0-config.R"))
 
 
-# Incorporate DIVIDS into the analysis
+# clean DIVIDS data
 
 divids<-fread(paste0(ghapdata_dir,"FINAL.csv"), header = T,
               drop = c( "AGEIMPFL",
@@ -35,31 +35,37 @@ gc()
 # subset columns
 divids <- subset(divids, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
 gc()
+
 # drop all rows where both `haz`` and `waz` are missing 
-# ASK ANDREW 
 divids <- divids %>% filter(!(is.na(haz) & is.na(waz)))
 gc()
 
 divids$subjid <- as.character(divids$subjid)
 
 
-# Incorporate VITALPAK-Pregnancy and I-LINS Dyad Ghana into the analysis
-
+# clean VITALPAK-Pregnancy data
 vitalpak_preg <- read.csv(paste0(other_mortality_path, "VITALPAK_Pregnancy.csv"))
 colnames(vitalpak_preg) <- tolower(colnames(vitalpak_preg))
 gc()
+
 # subset columns
 vitalpak_preg <- subset(vitalpak_preg, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
 gc()
+vitalpak_preg$subjid <- as.character(vitalpak_preg$subjid)
 
+
+
+# clean I-LINS Dyad Ghana data
 ilinsdyadghana <- read.csv(paste0(other_mortality_path, "full_ki1033518_DYAD_G_201809.csv"))
 colnames(ilinsdyadghana) <- tolower(colnames(ilinsdyadghana))
 gc()
+
 # subset columns
 ilinsdyadghana <- subset(ilinsdyadghana, select=c(studyid, country, subjid, sex, agedays, dead, agedth, haz, whz, waz))
 gc()
-# causedth missing from data
 
+ilinsdyadghana$subjid <- as.character(ilinsdyadghana$subjid)
+ilinsdyadghana$studyid[ilinsdyadghana$studyid == "ki1033518-iLiNS-DYAD-G"] <- "iLiNS-DYAD-G"
 
 ##########################################################
 
@@ -70,9 +76,9 @@ gc()
 d <- subset(d, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
 gc()
 
-tail(d)
-d <- rbind(d, divids, vitalpak_preg)
-tail(d)
+
+d <- bind_rows(d, divids, vitalpak_preg, ilinsdyadghana)
+
 dim(d)
 d <- d %>% filter(!is.na(dead) | !is.na(agedth) | !is.na(causedth))
 dim(d)
@@ -112,14 +118,7 @@ saveRDS(d, mortality_age_path)
 
 
 
-
-
-
-
-
-
-
-# 
+ 
 # #make sure dataset is time-static and subset to 1 observation
 # # add minimum Z-scores, mean, and number of stunted or wasted obs
 # d <- d %>% 
