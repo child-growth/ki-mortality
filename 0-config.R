@@ -27,7 +27,8 @@ ghapdata_dir                      = "/data/KI/UCB-SuperLearner/Manuscript analys
 
 
 project_functions_dir             = here::here("0-project-functions/")
-mortality_age_path                    = paste0(ghapdata_dir,"mortality_age.rds")
+mortality_age_path                = paste0(ghapdata_dir,"mortality_age.rds")
+other_mortality_path              = "/data/KI/UCB-SuperLearner/other mortality datasets/"
 
 
 ##################################

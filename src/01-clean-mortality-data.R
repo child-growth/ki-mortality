@@ -6,6 +6,68 @@ rm(list=ls())
 source(paste0(here::here(), "/0-config.R"))
 
 
+# clean DIVIDS data
+
+divids<-fread(paste0(ghapdata_dir,"FINAL.csv"), header = T,
+              drop = c( "AGEIMPFL",
+                        "BAZ", "HCAZ",      
+                        "REGCTRY", "REGCTYP",
+                        "HHID",    
+                        "FEEDING", "DURBRST", 
+                        "ENSTUNT", "FWTKG", "FBMI",
+                        "BRFEED", "SUMEP",   "SUMDIAR", "SUMDAYS",
+                        "PCTDIAR", "IMPSAN",  "SOAP",    "SAFEH2O", "H2OTIME",
+                        "CHICKEN", "COW",     "CATTLE",  "INCTOT", 
+                        "INCTOTU", "BFEDFL",  "EXBFEDFL","WEANFL",  "ANMLKFL", "PWMLKFL",
+                        "FORMLKFL","BOTTLEFL","H20FEDFL","OTHFEDFL","SLDFEDFL","NBFYES",   "CMFDINT", "DIARFL",  "LSSTLFL",
+                        "NUMLS",   "BLDSTLFL","DIARFL_R","LSSTFL_R","NUMLS_R", "BLDSTL_R",
+                        "DUR_R"))
+gc()
+
+colnames(divids) <- tolower(colnames(divids))
+
+# subset to only DIVIDS study
+dim(divids)
+divids <- divids[(studyid %in% c("DIVIDS"))]
+dim(divids)
+gc()
+
+# subset columns
+divids <- subset(divids, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
+gc()
+
+# drop all rows where both `haz`` and `waz` are missing 
+divids <- divids %>% filter(!(is.na(haz) & is.na(waz)))
+gc()
+
+divids$subjid <- as.character(divids$subjid)
+
+
+# clean VITALPAK-Pregnancy data
+vitalpak_preg <- read.csv(paste0(other_mortality_path, "VITALPAK_Pregnancy.csv"))
+colnames(vitalpak_preg) <- tolower(colnames(vitalpak_preg))
+gc()
+
+# subset columns
+vitalpak_preg <- subset(vitalpak_preg, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
+gc()
+vitalpak_preg$subjid <- as.character(vitalpak_preg$subjid)
+
+
+
+# clean I-LINS Dyad Ghana data
+ilinsdyadghana <- read.csv(paste0(other_mortality_path, "full_ki1033518_DYAD_G_201809.csv"))
+colnames(ilinsdyadghana) <- tolower(colnames(ilinsdyadghana))
+gc()
+
+# subset columns
+ilinsdyadghana <- subset(ilinsdyadghana, select=c(studyid, country, subjid, sex, agedays, dead, agedth, haz, whz, waz))
+gc()
+
+ilinsdyadghana$subjid <- as.character(ilinsdyadghana$subjid)
+ilinsdyadghana$studyid[ilinsdyadghana$studyid == "ki1033518-iLiNS-DYAD-G"] <- "iLiNS-DYAD-G"
+
+##########################################################
 
 #read csv file
 d <- readRDS(paste0(ghapdata_dir, "ki-manuscript-dataset.rds"))
@@ -14,6 +76,8 @@ gc()
 d <- subset(d, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
 gc()
 
+
+d <- bind_rows(d, divids, vitalpak_preg, ilinsdyadghana)
 
 dim(d)
 d <- d %>% filter(!is.na(dead) | !is.na(agedth) | !is.na(causedth))
@@ -54,12 +118,7 @@ saveRDS(d, mortality_age_path)
 
 
 
-
-
-
-
-
-# 
+ 
 # #make sure dataset is time-static and subset to 1 observation
 # # add minimum Z-scores, mean, and number of stunted or wasted obs
 # d <- d %>% 
@@ -129,7 +188,6 @@ saveRDS(d, mortality_age_path)
 # table(mort$dead[mort$studyid %in% c("iLiNS-DOSE", "iLiNS-DYAD-M","JiVitA-3","JiVitA-4","Keneba", "SAS-CompFeed","VITAMIN-A","ZVITAMBO")])
 # prop.table(table(mort$dead[mort$studyid %in% c("iLiNS-DOSE", "iLiNS-DYAD-M","JiVitA-3","JiVitA-4","Keneba", "SAS-CompFeed","VITAMIN-A","ZVITAMBO")]))
 # 
-
 
 
 
