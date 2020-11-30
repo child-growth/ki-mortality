@@ -70,18 +70,19 @@ ilinsdyadghana$studyid[ilinsdyadghana$studyid == "ki1033518-iLiNS-DYAD-G"] <- "i
 ##########################################################
 
 #read csv file
-d <- readRDS(paste0(ghapdata_dir, "ki-manuscript-dataset.rds"))
+df <- readRDS(paste0(ghapdata_dir, "ki-manuscript-dataset.rds"))
 gc()
 
-d <- subset(d, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
+df <- subset(df, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
 gc()
 
 
-d <- bind_rows(d, divids, vitalpak_preg, ilinsdyadghana)
+d <- bind_rows(df, divids, vitalpak_preg, ilinsdyadghana)
 
 dim(d)
 d <- d %>% filter(!is.na(dead) | !is.na(agedth) | !is.na(causedth))
 dim(d)
+table(d$studyid)
 
 #Get maximum age that anthropometry was recorded
 d <- d %>% group_by(studyid, country, subjid) %>% mutate(maxage = max(agedays))
@@ -106,11 +107,15 @@ head(d)
 
 table(d$dead, is.na(d$agedth))
 
-
-#drop missing agedth
-d <- d %>% filter(!is.na(agedth))
+#drop missing death variable - should I do this for coxPH model?
+d <- d %>% filter(!is.na(dead))
 
 #Create an indicator for when age of death is imputed.
+d$imp_agedth <- ifelse(is.na(agedth), 1, 0)
+
+#impute missing agedth with max age
+d$agedth[is.na(d$agedth)] <- d$maxage[is.na(d$agedth)] 
+
 
 saveRDS(d, mortality_age_path)
 
