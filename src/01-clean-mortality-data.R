@@ -111,7 +111,7 @@ table(d$dead, is.na(d$agedth))
 d <- d %>% filter(!is.na(dead))
 
 #Create an indicator for when age of death is imputed.
-d$imp_agedth <- ifelse(is.na(agedth), 1, 0)
+d$imp_agedth <- ifelse(is.na(d$agedth), 1, 0)
 
 #impute missing agedth with max age
 d$agedth[is.na(d$agedth)] <- d$maxage[is.na(d$agedth)] 
