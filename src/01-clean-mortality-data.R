@@ -194,31 +194,39 @@ saveRDS(d, mortality_age_path)
 # prop.table(table(mort$dead[mort$studyid %in% c("iLiNS-DOSE", "iLiNS-DYAD-M","JiVitA-3","JiVitA-4","Keneba", "SAS-CompFeed","VITAMIN-A","ZVITAMBO")]))
 # 
 
-data <- d[d$studyid=="Burkina Faso Zn",]
+country <- c("BANGLADESH", "BURKINA FASO", "GAMBIA", "INDIA", "MALAWI", "NEPAL", "PERU", "TANZANIA, UNITED REPUBLIC OF", "ZIMBABWE")
+studyids <- c("Burkinda Faso Zn", "GMS-Nepal", "iLiNS-DOSE", "iLiNS-DYAD-M", "JiVitA-3", "JiVitA-4", "Keneba", "MAL-ED", "PROVIDE", "TanzaniaChild2", "VITAMIN-A", "ZVITAMBO")
+sex <- c("Male", "Female")
+for (i in country){
+  data <- d[d$country==i,]
   
-recorded_i <- subset(data, agedth > 0 & agedth < 29, select = c(agedth))
-recorded_ii <- subset(data, agedth > 28 & agedth < 91, select = c(agedth))
-recorded_iii <- subset(data, agedth >90 & agedth < 181, select = c(agedth))
-recorded_iv <- subset(data, agedth > 180 & agedth < 361, select = c(agedth))
-recorded_v <- subset(data, agedth > 360 & agedth < 721, select = c(agedth))
+  recorded_i <- subset(data, agedth > 0 & agedth < 29, select = c(agedth))
+  recorded_ii <- subset(data, agedth > 28 & agedth < 91, select = c(agedth))
+  recorded_iii <- subset(data, agedth >90 & agedth < 181, select = c(agedth))
+  recorded_iv <- subset(data, agedth > 180 & agedth < 361, select = c(agedth))
+  recorded_v <- subset(data, agedth > 360 & agedth < 721, select = c(agedth))
   
-imputed_i <- subset(data, maxage > 0 & maxage < 29, select = c(maxage))
-imputed_ii <- subset(data, maxage > 28 & maxage < 91, select = c(maxage))
-imputed_iii <- subset(data, maxage >90 & maxage < 181, select = c(maxage))
-imputed_iv <- subset(data, maxage > 180 & maxage < 361, select = c(maxage))
-imputed_v <- subset(data, maxage > 360 & maxage < 721, select = c(maxage))
+  imputed_i <- subset(data, maxage > 0 & maxage < 29, select = c(maxage))
+  imputed_ii <- subset(data, maxage > 28 & maxage < 91, select = c(maxage))
+  imputed_iii <- subset(data, maxage >90 & maxage < 181, select = c(maxage))
+  imputed_iv <- subset(data, maxage > 180 & maxage < 361, select = c(maxage))
+  imputed_v <- subset(data, maxage > 360 & maxage < 721, select = c(maxage))
   
-cat("recorded\n")
-dim(recorded_i)
-dim(recorded_ii)
-dim(recorded_iii)
-dim(recorded_iv)
-dim(recorded_v)
+  cat("\n")
+  print(i)
+  cat("recorded\n")
+  print(dim(recorded_i))
+  print(dim(recorded_ii))
+  print(dim(recorded_iii))
+  print(dim(recorded_iv))
+  print(dim(recorded_v))
   
-cat("\nimputed\n")
-dim(imputed_i)
-dim(imputed_ii)
-dim(imputed_iii)
-dim(imputed_iv)
-dim(imputed_v)
+  cat("\nimputed\n")
+  print(dim(imputed_i))
+  print(dim(imputed_ii))
+  print(dim(imputed_iii))
+  print(dim(imputed_iv))
+  print(dim(imputed_v))
+}
 
+  
