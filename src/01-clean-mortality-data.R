@@ -194,7 +194,7 @@ saveRDS(d, mortality_age_path)
 # prop.table(table(mort$dead[mort$studyid %in% c("iLiNS-DOSE", "iLiNS-DYAD-M","JiVitA-3","JiVitA-4","Keneba", "SAS-CompFeed","VITAMIN-A","ZVITAMBO")]))
 # 
 
-data <- d[d$studyid=="Burkina Faso Zn"]
+data <- d[d$studyid=="Burkina Faso Zn",]
   
 recorded_i <- subset(data, agedth > 0 & agedth < 29, select = c(agedth))
 recorded_ii <- subset(data, agedth > 28 & agedth < 91, select = c(agedth))
