@@ -194,5 +194,31 @@ saveRDS(d, mortality_age_path)
 # prop.table(table(mort$dead[mort$studyid %in% c("iLiNS-DOSE", "iLiNS-DYAD-M","JiVitA-3","JiVitA-4","Keneba", "SAS-CompFeed","VITAMIN-A","ZVITAMBO")]))
 # 
 
-
+data <- d[d$studyid=="Burkina Faso Zn"]
+  
+recorded_i <- subset(data, agedth > 0 & agedth < 29, select = c(agedth))
+recorded_ii <- subset(data, agedth > 28 & agedth < 91, select = c(agedth))
+recorded_iii <- subset(data, agedth >90 & agedth < 181, select = c(agedth))
+recorded_iv <- subset(data, agedth > 180 & agedth < 361, select = c(agedth))
+recorded_v <- subset(data, agedth > 360 & agedth < 721, select = c(agedth))
+  
+imputed_i <- subset(data, maxage > 0 & maxage < 29, select = c(maxage))
+imputed_ii <- subset(data, maxage > 28 & maxage < 91, select = c(maxage))
+imputed_iii <- subset(data, maxage >90 & maxage < 181, select = c(maxage))
+imputed_iv <- subset(data, maxage > 180 & maxage < 361, select = c(maxage))
+imputed_v <- subset(data, maxage > 360 & maxage < 721, select = c(maxage))
+  
+cat("recorded\n")
+dim(recorded_i)
+dim(recorded_ii)
+dim(recorded_iii)
+dim(recorded_iv)
+dim(recorded_v)
+  
+cat("\nimputed\n")
+dim(imputed_i)
+dim(imputed_ii)
+dim(imputed_iii)
+dim(imputed_iv)
+dim(imputed_v)
 
