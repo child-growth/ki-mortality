@@ -19,6 +19,8 @@ library(survival)
 library(survminer)
 
 
+source(here("0-analysis-functions.R"))
+
 
 # Define directories
 res_dir                           = here::here("results/")

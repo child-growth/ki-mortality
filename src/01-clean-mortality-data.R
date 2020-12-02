@@ -135,6 +135,7 @@ table(d$dead, is.na(d$agedth))
 d <- d %>% arrange(studyid, country, subjid, agedays) %>%
   group_by(studyid, country, subjid) %>%
   mutate(
+    subjid=as.numeric(subjid),
     age_diff=agedays-lag(agedays),
     sufficient_lag = ifelse(age_diff>=7 & !is.na(age_diff),1,0),
     # lag_haz = lag(haz),
@@ -152,9 +153,9 @@ d <- d %>% arrange(studyid, country, subjid, agedays) %>%
     sstunt = 1*(haz < -3),
     swast = 1*(whz < -3),
     sunderwt = 1*(waz < -3),
-    ever_stunt = cumsum(stunt),
-    ever_wast = cumsum(wast),
-    ever_uwt = cumsum(underwt),
+    ever_stunt = 1*(cumsum(stunt)>0),
+    ever_wast = 1*(cumsum(wast)>0),
+    ever_uwt = 1*(cumsum(underwt)>0),
     stunt_uwt = stunt==1 & underwt==1,
     wast_uwt = wast==1 & underwt==1,
     co = stunt==1 & wast==1

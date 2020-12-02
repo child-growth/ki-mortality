@@ -19,21 +19,33 @@ table(d$studyid)
 summary(d$agedays)
 table(d$agecat)
 d <- d %>% filter(agedays <= 730)
-d <- d %>% filter(studyid=="JiVitA-4")
-d$event <- with(d, Surv(agedays, dead == 1))
+#d <- d %>% filter(studyid=="ZVITAMBO")
+d <- droplevels(d)
 
-res.cox1 <- coxph(event ~ sex + wast + survival::cluster(subjid), data =  d)
-summary(res.cox1)
 
+
+table(d$ever_wast, d$dead, d$studyid)
 
 table(d$agecat)
-d <- d %>% filter(agecat=="(181,365]")
-d$event <- with(d, Surv(agedays, dead == 1))
-res.cox2 <- coxph(event ~ sex + wast + survival::cluster(subjid), data =  d)
-summary(res.cox2)
 
-res.cox3 <- coxph(event ~ sex + ever_wast + survival::cluster(subjid), data =  d)
-summary(res.cox3)
+age="(181,365]"
+age=NULL
+Xvar="ever_stunt"
+
+
+#Now expand this coding across outcomes/age categories
+
+res1 <- d %>% 
+  filter(!is.na(ever_wast)& !is.na(dead)) %>% 
+  group_by(studyid) %>%
+  mutate(Ndead=sum(dead)) %>% filter(Ndead>4) %>% droplevels(.) %>%
+  do(ki_coxph(d=., Xvar="ever_wast"))
+
+poolHR(res1)
+  
+
+
+
 
 
 ## Solution 2: Time-varying effect
