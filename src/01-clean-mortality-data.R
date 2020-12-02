@@ -109,10 +109,10 @@ d %>% group_by(studyid, subjid) %>% arrange(agedays) %>% slice(1) %>%
   group_by(studyid) %>% summarize(N=n(), deaths=sum(dead)) %>% filter(deaths!=0)
 
 #Make sure only final observation is marked dead
-df <- d %>% group_by(studyid, subjid) %>% arrange(agedays) %>%
+d <- d %>% group_by(studyid, subjid) %>% arrange(agedays) %>%
            mutate(dead = ifelse(agedays==last(agedays), dead, 0),
                   final_obs = ifelse(agedays==last(agedays), 1, 0))
-table(df$studyid, df$dead)
+table(d$studyid, d$dead)
 
 
 
@@ -159,8 +159,8 @@ d <- d %>% arrange(studyid, country, subjid, agedays) %>%
     stunt_uwt = stunt==1 & underwt==1,
     wast_uwt = wast==1 & underwt==1,
     co = stunt==1 & wast==1
-  ) %>% 
-  filter(agedays==maxage)
+   ) #%>% 
+  # filter(agedays==maxage)
 
 table(d$studyid, d$dead)
 
