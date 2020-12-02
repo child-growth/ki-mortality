@@ -35,11 +35,6 @@ gc()
 # subset columns
 divids <- subset(divids, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
 gc()
-
-# drop all rows where both `haz`` and `waz` are missing 
-divids <- divids %>% filter(!(is.na(haz) & is.na(waz)))
-gc()
-
 divids$subjid <- as.character(divids$subjid)
 
 
@@ -61,7 +56,8 @@ colnames(ilinsdyadghana) <- tolower(colnames(ilinsdyadghana))
 gc()
 
 # subset columns
-ilinsdyadghana <- subset(ilinsdyadghana, select=c(studyid, country, subjid, sex, agedays, dead, agedth, haz, whz, waz))
+ilinsdyadghana <- subset(ilinsdyadghana, select=c(studyid, country, subjid, sex, agedays, dead, agedth, haz, whz, waz)) %>%
+                         filter(agedays > 0)
 gc()
 
 ilinsdyadghana$subjid <- as.character(ilinsdyadghana$subjid)
@@ -73,23 +69,27 @@ ilinsdyadghana$studyid[ilinsdyadghana$studyid == "ki1033518-iLiNS-DYAD-G"] <- "i
 df <- readRDS(paste0(ghapdata_dir, "ki-manuscript-dataset.rds"))
 gc()
 
-df <- subset(df, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
+df <- subset(df, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz)) %>%
+  filter(agedays > 0)
 gc()
 
+table(divids$dead)
+table(vitalpak_preg$dead)
+table(ilinsdyadghana$dead)
 
+
+#merge manuscript cohorts and others
+df$manuscript_cohort <- 1
+divids$manuscript_cohort <- 0
+vitalpak_preg$manuscript_cohort <- 0
+ilinsdyadghana$manuscript_cohort <- 0
 d <- bind_rows(df, divids, vitalpak_preg, ilinsdyadghana)
+table(d$studyid, d$dead)
 
-dim(d)
-d <- d %>% filter(!is.na(dead) | !is.na(agedth) | !is.na(causedth))
-dim(d)
-table(d$studyid)
 
 #Get maximum age that anthropometry was recorded
 d <- d %>% group_by(studyid, country, subjid) %>% mutate(maxage = max(agedays))
 summary(d$maxage)
-
-table(d$dead)
-table(d$causedth)
 
 table(1*!is.na(d$dead),is.na(d$agedth))
 table(1*!is.na(d$dead),(d$causedth==""))
@@ -98,20 +98,82 @@ table(1*!is.na(d$dead),(d$causedth==""))
 d$agedth[!is.na(d$agedth) & is.na(d$dead)]
 d$dead[!is.na(d$agedth) & is.na(d$dead)] <- 1
 
+#mark obs without indicator for dead, agedth, or causedth as not dead
+d$dead[is.na(d$agedth) & is.na(d$dead)] <- 0
+
+# drop all rows where both `haz`` and `waz` are missing 
+d <- d %>% filter(!(is.na(haz) & is.na(waz)))
+
+table(d$studyid, d$dead)
+d %>% group_by(studyid, subjid) %>% arrange(agedays) %>% slice(1) %>%
+  group_by(studyid) %>% summarize(N=n(), deaths=sum(dead)) %>% filter(deaths!=0)
+
+#Make sure only final observation is marked dead
+df <- d %>% group_by(studyid, subjid) %>% arrange(agedays) %>%
+           mutate(dead = ifelse(agedays==last(agedays), dead, 0),
+                  final_obs = ifelse(agedays==last(agedays), 1, 0))
+table(df$studyid, df$dead)
+
+
+
+#Mark age categories
+d$agecat <- cut(d$agedays, breaks = c(0, 30, 91, 182, 365, 730, 7000))
+table(d$agecat)
+table(d$studyid, d$agecat)
+table(d$agecat, d$dead)
 
 table(d$studyid, d$agedth>0)
 table(d$studyid, d$dead)
+table(is.na(d$dead))
 table(d$dead)
 
 head(d)
 
 table(d$dead, is.na(d$agedth))
 
+#mark the lagged anthro measure prior to death/censoring and subset to final observations
+d <- d %>% arrange(studyid, country, subjid, agedays) %>%
+  group_by(studyid, country, subjid) %>%
+  mutate(
+    age_diff=agedays-lag(agedays),
+    sufficient_lag = ifelse(age_diff>=7 & !is.na(age_diff),1,0),
+    # lag_haz = lag(haz),
+    # lag_whz = lag(whz),
+    # lag_waz = lag(waz),
+    # stunt = 1*(lag_haz < -2),
+    # wast = 1*(lag_whz < -2),
+    # underwt = 1*(lag_waz < -2),
+    # sstunt = 1*(lag_haz < -3),
+    # swast = 1*(lag_whz < -3),
+    # sunderwt = 1*(lag_waz < -3)
+    stunt = 1*(haz < -2),
+    wast = 1*(whz < -2),
+    underwt = 1*(waz < -2),
+    sstunt = 1*(haz < -3),
+    swast = 1*(whz < -3),
+    sunderwt = 1*(waz < -3),
+    ever_stunt = cumsum(stunt),
+    ever_wast = cumsum(wast),
+    ever_uwt = cumsum(underwt),
+    stunt_uwt = stunt==1 & underwt==1,
+    wast_uwt = wast==1 & underwt==1,
+    co = stunt==1 & wast==1
+  ) %>% 
+  filter(agedays==maxage)
+
+table(d$studyid, d$dead)
+
+
+#drop studies with <5 deaths
+d <- d %>% group_by(studyid, country) %>% filter(sum(dead, na.rm=T)>4)
+table(d$studyid, d$dead)
+prop.table(table(d$studyid, d$dead),1)*100
+
 #drop missing death variable - should I do this for coxPH model?
-d <- d %>% filter(!is.na(dead))
+#d <- d %>% filter(!is.na(dead))
 
 #Create an indicator for when age of death is imputed.
-d$imp_agedth <- ifelse(is.na(d$agedth), 1, 0)
+d$imp_agedth <- ifelse(is.na(d$agedth) & d$dead==1, 1, 0)
 
 #impute missing agedth with max age
 d$agedth[is.na(d$agedth)] <- d$maxage[is.na(d$agedth)] 
