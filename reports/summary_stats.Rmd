@@ -1,0 +1,56 @@
+---
+title: "Mortality summary stats"
+author: "Andrew Mertens"
+date: "12/1/2020"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+library(pander)
+library(here)
+```
+
+
+```{r, echo=F}
+load(file=here("results/summary_tables.Rdata"))
+
+tab1 <- tab1 %>% arrange(!manuscript_cohort, country, studyid)
+
+#round(mapply(`/`, tab3[,-1], tab2[,-1])*100,1)
+
+pander(tab1)
+pander(tab2)
+pander(tab3)
+pander(tab4)
+```
+
+
+```{r, echo=F}
+kable(tab1)
+kable(tab2)
+kable(tab3)
+kable(tab4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
