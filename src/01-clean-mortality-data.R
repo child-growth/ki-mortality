@@ -33,7 +33,8 @@ dim(divids)
 gc()
 
 # subset columns
-divids <- subset(divids, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
+divids <- subset(divids, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz, muaz))%>%
+  filter(agedays > 0)
 gc()
 divids$subjid <- as.character(divids$subjid)
 
@@ -44,7 +45,8 @@ colnames(vitalpak_preg) <- tolower(colnames(vitalpak_preg))
 gc()
 
 # subset columns
-vitalpak_preg <- subset(vitalpak_preg, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))
+vitalpak_preg <- subset(vitalpak_preg, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))%>%
+  filter(agedays > 0)
 gc()
 vitalpak_preg$subjid <- as.character(vitalpak_preg$subjid)
 
@@ -56,7 +58,7 @@ colnames(ilinsdyadghana) <- tolower(colnames(ilinsdyadghana))
 gc()
 
 # subset columns
-ilinsdyadghana <- subset(ilinsdyadghana, select=c(studyid, country, subjid, sex, agedays, dead, agedth, haz, whz, waz)) %>%
+ilinsdyadghana <- subset(ilinsdyadghana, select=c(studyid, country, subjid, sex, agedays, dead, agedth, haz, whz, waz, muaz)) %>%
                          filter(agedays > 0)
 gc()
 
@@ -69,7 +71,7 @@ ilinsdyadghana$studyid[ilinsdyadghana$studyid == "ki1033518-iLiNS-DYAD-G"] <- "i
 df <- readRDS(paste0(ghapdata_dir, "ki-manuscript-dataset.rds"))
 gc()
 
-df <- subset(df, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz)) %>%
+df <- subset(df, select= c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz, muaz)) %>%
   filter(agedays > 0)
 gc()
 

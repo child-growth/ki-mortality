@@ -8,6 +8,7 @@ library(janitor)
 d <- readRDS(mortality_age_path)
 
 table(d$studyid)
+d %>% group_by(studyid) %>% distinct(subjid) %>% summarize(N=n())
 
 
 #Included studies
@@ -27,7 +28,7 @@ tab3 <- tabyl(dat= d, studyid, agecat, dead)$`1`
 
 #subset to primary dataset- has age of death, deaths before 2 years, last measure at least a week prior
 tab4 <- d %>% group_by(studyid, subjid) %>% 
-  filter(maxage <= 730) %>%
+  filter(agedays <= 730) %>%
   filter(agedays==last(agedays)) %>%
   group_by(studyid) %>%
   mutate(N_children= length(unique(subjid)),

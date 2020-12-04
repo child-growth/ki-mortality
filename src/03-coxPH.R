@@ -33,15 +33,23 @@ age=NULL
 Xvar="ever_stunt"
 
 
+#Covariates adjustment set
+Wvars <- c("agedays", "", "")
+
+
 #Now expand this coding across outcomes/age categories
 
 res1 <- d %>% 
   filter(!is.na(ever_wast)& !is.na(dead)) %>% 
   group_by(studyid) %>%
   mutate(Ndead=sum(dead)) %>% filter(Ndead>4) %>% droplevels(.) %>%
-  do(ki_coxph(d=., Xvar="ever_wast"))
+  do(ki_coxph(d=., Xvar="ever_wast")) %>%
+  mutate(pooled=0)
 
-poolHR(res1)
+poolHR <- poolHR(res1) %>% mutate(pooled=1)
+
+res <- bind_rows(res1, poolHR) %>%
+  mutate(X= "ever_wast", Y= "dead")
   
 
 
