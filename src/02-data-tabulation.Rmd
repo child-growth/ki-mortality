@@ -1,0 +1,169 @@
+---
+title: "02-Data-Tabulation"
+output:
+  html_document: default
+---
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+rm(list = ls())
+source(paste0(here::here(), "/0-config.R"))
+
+#read csv file
+d <- readRDS(paste0(ghapdata_dir, "ki-manuscript-dataset.rds"))
+d <- subset(d, select= c(studyid, country, subjid, agedays, dead, agedth, causedth, haz, whz, waz, sex))
+d <- d %>% filter(!is.na(dead) | !is.na(agedth) | !is.na(causedth))
+
+#Get maximum age that anthropometry was recorded
+d <- d %>% group_by(studyid, country, subjid) %>% mutate(maxage = max(agedays))
+
+#mark dead if have a cause or age death
+d$agedth[!is.na(d$agedth) & is.na(d$dead)]
+d$dead[!is.na(d$agedth) & is.na(d$dead)] <- 1
+
+#drop missing agedth
+d <- d %>% filter(!is.na(agedth))
+```
+## Overall data tabulation
+
+```{r}
+recorded_i <- subset(d, agedth > 0 & agedth < 29, select = c(agedth))
+recorded_ii <- subset(d, agedth > 28 & agedth < 91, select = c(agedth))
+recorded_iii <- subset(d, agedth >90 & agedth < 181, select = c(agedth))
+recorded_iv <- subset(d, agedth > 180 & agedth < 361, select = c(agedth))
+recorded_v <- subset(d, agedth > 360 & agedth < 721, select = c(agedth))
+  
+imputed_i <- subset(d, maxage > 0 & maxage < 29, select = c(maxage))
+imputed_ii <- subset(d, maxage > 28 & maxage < 91, select = c(maxage))
+imputed_iii <- subset(d, maxage >90 & maxage < 181, select = c(maxage))
+imputed_iv <- subset(d, maxage > 180 & maxage < 361, select = c(maxage))
+imputed_v <- subset(d, maxage > 360 & maxage < 721, select = c(maxage))
+  
+cat("\nRecorded\n")
+print(dim(recorded_i))
+print(dim(recorded_ii))
+print(dim(recorded_iii))
+print(dim(recorded_iv))
+print(dim(recorded_v))
+  
+cat("\nImputed\n")
+print(dim(imputed_i))
+print(dim(imputed_ii))
+print(dim(imputed_iii))
+print(dim(imputed_iv))
+print(dim(imputed_v))
+```
+
+## Countries data tabulation
+
+```{r}
+country <- c("BANGLADESH", "BURKINA FASO", "GAMBIA", "INDIA", "MALAWI", "NEPAL", "PERU", "TANZANIA, UNITED REPUBLIC OF", "ZIMBABWE")
+
+for (i in country){
+  data <- d[d$country==i,]
+  
+  recorded_i <- subset(data, agedth > 0 & agedth < 29, select = c(agedth))
+  recorded_ii <- subset(data, agedth > 28 & agedth < 91, select = c(agedth))
+  recorded_iii <- subset(data, agedth >90 & agedth < 181, select = c(agedth))
+  recorded_iv <- subset(data, agedth > 180 & agedth < 361, select = c(agedth))
+  recorded_v <- subset(data, agedth > 360 & agedth < 721, select = c(agedth))
+  
+  imputed_i <- subset(data, maxage > 0 & maxage < 29, select = c(maxage))
+  imputed_ii <- subset(data, maxage > 28 & maxage < 91, select = c(maxage))
+  imputed_iii <- subset(data, maxage >90 & maxage < 181, select = c(maxage))
+  imputed_iv <- subset(data, maxage > 180 & maxage < 361, select = c(maxage))
+  imputed_v <- subset(data, maxage > 360 & maxage < 721, select = c(maxage))
+  
+  cat("\n")
+  print(i)
+  cat("Recorded\n")
+  print(dim(recorded_i))
+  print(dim(recorded_ii))
+  print(dim(recorded_iii))
+  print(dim(recorded_iv))
+  print(dim(recorded_v))
+  
+  cat("\nImputed\n")
+  print(dim(imputed_i))
+  print(dim(imputed_ii))
+  print(dim(imputed_iii))
+  print(dim(imputed_iv))
+  print(dim(imputed_v))
+}
+```
+
+## Study IDs data tabulation
+
+```{r}
+studyids <- c("Burkinda Faso Zn", "GMS-Nepal", "iLiNS-DOSE", "iLiNS-DYAD-M", "JiVitA-3", "JiVitA-4", "Keneba", "MAL-ED", "PROVIDE", "TanzaniaChild2", "VITAMIN-A", "ZVITAMBO")
+
+for (i in studyids){
+  data <- d[d$studyid==i,]
+  
+  recorded_i <- subset(data, agedth > 0 & agedth < 29, select = c(agedth))
+  recorded_ii <- subset(data, agedth > 28 & agedth < 91, select = c(agedth))
+  recorded_iii <- subset(data, agedth >90 & agedth < 181, select = c(agedth))
+  recorded_iv <- subset(data, agedth > 180 & agedth < 361, select = c(agedth))
+  recorded_v <- subset(data, agedth > 360 & agedth < 721, select = c(agedth))
+  
+  imputed_i <- subset(data, maxage > 0 & maxage < 29, select = c(maxage))
+  imputed_ii <- subset(data, maxage > 28 & maxage < 91, select = c(maxage))
+  imputed_iii <- subset(data, maxage >90 & maxage < 181, select = c(maxage))
+  imputed_iv <- subset(data, maxage > 180 & maxage < 361, select = c(maxage))
+  imputed_v <- subset(data, maxage > 360 & maxage < 721, select = c(maxage))
+  
+  cat("\n")
+  print(i)
+  cat("Recorded\n")
+  print(dim(recorded_i))
+  print(dim(recorded_ii))
+  print(dim(recorded_iii))
+  print(dim(recorded_iv))
+  print(dim(recorded_v))
+  
+  cat("\nImputed\n")
+  print(dim(imputed_i))
+  print(dim(imputed_ii))
+  print(dim(imputed_iii))
+  print(dim(imputed_iv))
+  print(dim(imputed_v))
+}
+```
+
+## Sex data tabulation
+
+```{r}
+s <- c("Male", "Female")
+
+for (i in s){
+  data <- d[d$sex==i,]
+  
+  recorded_i <- subset(data, agedth > 0 & agedth < 29, select = c(agedth))
+  recorded_ii <- subset(data, agedth > 28 & agedth < 91, select = c(agedth))
+  recorded_iii <- subset(data, agedth >90 & agedth < 181, select = c(agedth))
+  recorded_iv <- subset(data, agedth > 180 & agedth < 361, select = c(agedth))
+  recorded_v <- subset(data, agedth > 360 & agedth < 721, select = c(agedth))
+  
+  imputed_i <- subset(data, maxage > 0 & maxage < 29, select = c(maxage))
+  imputed_ii <- subset(data, maxage > 28 & maxage < 91, select = c(maxage))
+  imputed_iii <- subset(data, maxage >90 & maxage < 181, select = c(maxage))
+  imputed_iv <- subset(data, maxage > 180 & maxage < 361, select = c(maxage))
+  imputed_v <- subset(data, maxage > 360 & maxage < 721, select = c(maxage))
+  
+  cat("\n")
+  print(i)
+  cat("Recorded\n")
+  print(dim(recorded_i))
+  print(dim(recorded_ii))
+  print(dim(recorded_iii))
+  print(dim(recorded_iv))
+  print(dim(recorded_v))
+  
+  cat("\nImputed\n")
+  print(dim(imputed_i))
+  print(dim(imputed_ii))
+  print(dim(imputed_iii))
+  print(dim(imputed_iv))
+  print(dim(imputed_v))
+}
+```
