@@ -19,7 +19,7 @@ d$causedth_missing = ifelse(d$causedth %in% c("", "Censored"), 1, 0)
 studies_and_causes = d %>% 
                       group_by(studyid, causedth) %>% 
                       summarise(count = n(), num_missing = sum(causedth_missing))
-View(studies_and_causes)
+studies_and_causes
 
 # Filter studies with missing data
 d = d %>% filter(causedth_missing == 0)
@@ -60,7 +60,7 @@ infection_tb = get_causedth_binary("tuberculosis")
 infection_malaria = get_causedth_binary("malaria")
 infection_hiv = get_causedth_binary("hiv") # not a recorded cause of death
 infection_meningitis = get_causedth_binary("meningitis")
-malnutrition = get_causedth_binary("malaria")
+malnutrition = get_causedth_binary("malnutrition")
 neonatal_sepsis = get_causedth_binary("neonatal sepsis")
 sepsis = get_causedth_binary("(sepsis)|(septicemia)") # Non-specific /generalised sepsis
 other = get_causedth_binary("(other:)|(sids)|(anemia)|(congenital)")
@@ -95,7 +95,8 @@ d$causedth_sepsis = sepsis
 d$causedth_other = other
 d$causedth_other_infection = other_infection
 d$causedth_uncertain = uncertain
+View(d)
 
-mortality_causedth_path = paste0(ghapdata_dir,"mortality_causedth.rds")
-saveRDS(d, mortality_causedth_path)
+# mortality_causedth_path = paste0(ghapdata_dir,"mortality_causedth.rds")
+# saveRDS(d, mortality_causedth_path)
 
