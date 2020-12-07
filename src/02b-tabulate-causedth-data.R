@@ -22,7 +22,7 @@ studies_and_causes = d %>%
 studies_and_causes
 
 # Filter studies with missing data
-d = d %>% filter(causedth_missing == 0)
+# d = d %>% filter(causedth_missing == 0)
 
 # Tabulate causes of death
 causedth = d$causedth
@@ -96,6 +96,8 @@ d$causedth_other = other
 d$causedth_other_infection = other_infection
 d$causedth_uncertain = uncertain
 View(d)
+
+# table(d$causedth_ari_pneumonia)
 
 # mortality_causedth_path = paste0(ghapdata_dir,"mortality_causedth.rds")
 # saveRDS(d, mortality_causedth_path)
