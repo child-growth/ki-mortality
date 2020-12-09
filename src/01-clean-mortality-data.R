@@ -140,29 +140,36 @@ d <- d %>% arrange(studyid, country, subjid, agedays) %>%
     subjid=as.numeric(subjid),
     age_diff=agedays-lag(agedays),
     sufficient_lag = ifelse(age_diff>=7 & !is.na(age_diff),1,0),
-    # lag_haz = lag(haz),
-    # lag_whz = lag(whz),
-    # lag_waz = lag(waz),
-    # stunt = 1*(lag_haz < -2),
-    # wast = 1*(lag_whz < -2),
-    # underwt = 1*(lag_waz < -2),
-    # sstunt = 1*(lag_haz < -3),
-    # swast = 1*(lag_whz < -3),
-    # sunderwt = 1*(lag_waz < -3)
     stunt = 1*(haz < -2),
     wast = 1*(whz < -2),
     underwt = 1*(waz < -2),
     sstunt = 1*(haz < -3),
     swast = 1*(whz < -3),
     sunderwt = 1*(waz < -3),
-    ever_stunt = 1*(cumsum(stunt)>0),
-    ever_wast = 1*(cumsum(wast)>0),
-    ever_uwt = 1*(cumsum(underwt)>0),
     stunt_uwt = stunt==1 & underwt==1,
     wast_uwt = wast==1 & underwt==1,
-    co = stunt==1 & wast==1
-   ) #%>% 
-  # filter(agedays==maxage)
+    co = stunt==1 & wast==1,
+    cum_stunt = 1*(cumsum(coalesce(stunt, 0))>0),
+    cum_wast = 1*(cumsum(coalesce(wast, 0))>0),
+    cum_uwt = 1*(cumsum(coalesce(underwt, 0))>0),
+    cum_sstunt = 1*(cumsum(coalesce(sstunt, 0))>0),
+    cum_swast = 1*(cumsum(coalesce(swast, 0))>0),
+    cum_suwt = 1*(cumsum(coalesce(sunderwt, 0))>0),
+    cum_stunt_uwt = 1*(cumsum(coalesce(stunt_uwt, 0))>0),
+    cum_wast_uwt = 1*(cumsum(coalesce(wast_uwt, 0))>0),
+    cum_co = 1*(cumsum(coalesce(co, 0))>0),
+    ever_stunt = max(cum_stunt),
+    ever_wast = max(cum_wast),
+    ever_uwt = max(cum_uwt),
+    ever_sstunt = max(cum_uwt),
+    ever_swast = max(cum_swast),
+    ever_suwt = max(cum_suwt),
+    ever_stunt_uwt = max(cum_stunt_uwt),
+    ever_wast_uwt = max(cum_wast_uwt),
+    ever_co = max(cum_co)
+   )
+
+#Note: add velocity measures?
 
 table(d$studyid, d$dead)
 

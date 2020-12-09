@@ -33,6 +33,34 @@ mortality_age_path                = paste0(ghapdata_dir,"mortality_age.rds")
 other_mortality_path              = "/data/KI/UCB-SuperLearner/other mortality datasets/"
 
 
+#Plotting functions
+
+scaleFUN <- function(x) sprintf("%.2f", x)
+
+
+
+theme_ki <- function() {
+  theme_bw() %+replace%
+    theme(
+      strip.background = element_blank(),
+      legend.position="none",
+      plot.title = element_text(size = 16, face = "bold"),
+      strip.text = element_text(size=14),
+      axis.title = element_text(size=12),
+      axis.text.y = element_text(size=10),
+      axis.text.x = element_text(size=10, angle = 0, hjust = 0.5, vjust=.1)
+    )
+}
+
+#hbgdki pallets
+tableau10 <- c("#1F77B4","#FF7F0E","#2CA02C","#D62728",
+               "#9467BD","#8C564B","#E377C2","#7F7F7F","#BCBD22","#17BECF")
+tableau11 <- c("Black","#1F77B4","#FF7F0E","#2CA02C","#D62728",
+               "#9467BD","#8C564B","#E377C2","#7F7F7F","#BCBD22","#17BECF")
+
+theme_set(theme_ki())
+
+
 ##################################
 
 # # Source base functions  
