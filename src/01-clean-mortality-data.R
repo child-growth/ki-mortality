@@ -142,9 +142,11 @@ d <- d %>% arrange(studyid, country, subjid, agedays) %>%
     sufficient_lag = ifelse(age_diff>=7 & !is.na(age_diff),1,0),
     stunt = 1*(haz < -2),
     wast = 1*(whz < -2),
+    wast_muac = 1*(muaz < -2),
     underwt = 1*(waz < -2),
     sstunt = 1*(haz < -3),
     swast = 1*(whz < -3),
+    swast_muac = 1*(muaz < -3),
     sunderwt = 1*(waz < -3),
     stunt_uwt = stunt==1 & underwt==1,
     wast_uwt = wast==1 & underwt==1,
@@ -158,6 +160,8 @@ d <- d %>% arrange(studyid, country, subjid, agedays) %>%
     cum_stunt_uwt = 1*(cumsum(coalesce(stunt_uwt, 0))>0),
     cum_wast_uwt = 1*(cumsum(coalesce(wast_uwt, 0))>0),
     cum_co = 1*(cumsum(coalesce(co, 0))>0),
+    cum_wast_muac = 1*(cumsum(coalesce(wast_muac, 0))>0),
+    cum_swast_muac = 1*(cumsum(coalesce(swast_muac, 0))>0),
     ever_stunt = max(cum_stunt),
     ever_wast = max(cum_wast),
     ever_uwt = max(cum_uwt),
@@ -166,7 +170,9 @@ d <- d %>% arrange(studyid, country, subjid, agedays) %>%
     ever_suwt = max(cum_suwt),
     ever_stunt_uwt = max(cum_stunt_uwt),
     ever_wast_uwt = max(cum_wast_uwt),
-    ever_co = max(cum_co)
+    ever_co = max(cum_co),
+    ever_wast_muac = max(cum_wast_muac),
+    ever_swast_muac = max(cum_swast_muac)
    )
 
 #Note: add velocity measures?

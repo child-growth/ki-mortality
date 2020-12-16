@@ -6,6 +6,8 @@ library(janitor)
 
 
 d <- readRDS(mortality_age_path)
+d <- d %>% filter(!(studyid %in% c("iLiNS-DYAD-G","VITALPAK-Pregnancy", "DIVIDS")))
+
 
 table(d$studyid)
 d %>% group_by(studyid) %>% distinct(subjid) %>% summarize(N=n())
@@ -16,8 +18,7 @@ tab1 <- d %>% distinct(studyid, manuscript_cohort)
 
 
 #Get number of observations in different age categories
-tab3 <- d %>% group_by(studyid, subjid) %>% 
-  
+
 table(d$agecat)
 
 table(d$studyid, d$agecat)
@@ -34,9 +35,11 @@ tab4 <- d %>% group_by(studyid, subjid) %>%
   mutate(N_children= length(unique(subjid)),
          mortality_rate= round(mean(dead)*100,1),
          wasting_rate= round(mean(whz < -2, na.rm=T)*100,1),
+         wasting_rate_muac= round(mean(muaz < -2, na.rm=T)*100,1),
          stunting_rate= round(mean(haz < -2, na.rm=T)*100,1),
          underweight_rate= round(mean(waz < -2, na.rm=T)*100,1),
          sev_wasting_rate= round(mean(whz < -3, na.rm=T)*100,1),
+         sev_wasting_rate_muac= round(mean(muaz < -3, na.rm=T)*100,1),
          sev_stunting_rate= round(mean(haz < -3, na.rm=T)*100,1),
          sev_underweight_rate= round(mean(waz < -3, na.rm=T)*100,1),
          deaths= sum(dead)) %>%
@@ -45,11 +48,24 @@ tab4 <- d %>% group_by(studyid, subjid) %>%
          mean_age_death = round(mean(agedth, na.rm=T),0)) %>%
   slice(1) %>%
   select(studyid, N_children,mortality_rate, deaths, N_with_age_of_death, mean_age_death, 
-         wasting_rate, stunting_rate, underweight_rate, 
-         sev_wasting_rate, sev_stunting_rate, sev_underweight_rate) %>%
+         wasting_rate, wasting_rate_muac, stunting_rate, 
+         sev_wasting_rate, sev_wasting_rate_muac, sev_stunting_rate) %>%
   arrange(mortality_rate)
 tab4
 
 
+#Sparsity between death and wasting measures
+df <- d %>% filter(agecat!="(0,30]" & agecat!="(730,7e+03]", 
+                   dead==1, imp_agedth==0,
+                   agedth- agedays > 6)
+tab5 <- tabyl(dat= df, studyid, agecat, wast)$`1`
 
-save(tab1, tab2, tab3, tab4, file=here("results/summary_tables.Rdata"))
+table(df$studyid, df$wast)
+
+tab5 <- df %>% group_by(studyid) %>% 
+  summarize(wast=sum(wast, na.rm = T),
+            swast=sum(swast, na.rm = T),
+            wast_muac=sum(wast_muac, na.rm = T),
+            swast_muac=sum(swast_muac, na.rm = T))
+            
+save(tab1, tab2, tab3, tab4, tab5, file=here("results/summary_tables.Rdata"))
