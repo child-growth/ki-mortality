@@ -43,7 +43,7 @@ tab4 <- d %>% group_by(studyid, subjid) %>%
          sev_stunting_rate= round(mean(haz < -3, na.rm=T)*100,1),
          sev_underweight_rate= round(mean(waz < -3, na.rm=T)*100,1),
          deaths= sum(dead)) %>%
-  filter(imp_agedth ==0) %>%
+  filter(imp_agedth ==0, agedth < 730, agedth- agedays > 6 & agedth- agedays < 6*30.4167) %>%
   mutate(N_with_age_of_death=sum(dead),
          mean_age_death = round(mean(agedth, na.rm=T),0)) %>%
   filter(agedays >30) %>%
@@ -60,11 +60,8 @@ tab4
 
 #Sparsity between death and wasting measures
 df <- d %>% filter(agecat!="(0,30]" & agecat!="(730,7e+03]", 
-                   dead==1, imp_agedth==0,
-                   agedth- agedays > 6)
-tab5 <- tabyl(dat= df, studyid, agecat, wast)$`1`
-
-table(df$studyid, df$wast)
+                   dead==1, imp_agedth==0, agedth < 730,
+                   agedth- agedays > 6 & agedth- agedays < 6*30.4167)
 
 tab5 <- df %>% group_by(studyid, country) %>% 
   summarize(wast=sum(wast, na.rm = T),
