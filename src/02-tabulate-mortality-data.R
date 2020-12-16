@@ -31,7 +31,7 @@ tab3 <- tabyl(dat= d, studyid, agecat, dead)$`1`
 tab4 <- d %>% group_by(studyid, subjid) %>% 
   filter(agedays <= 730) %>%
   filter(agedays==last(agedays)) %>%
-  group_by(studyid) %>%
+  group_by(studyid, country) %>%
   mutate(N_children= length(unique(subjid)),
          mortality_rate= round(mean(dead)*100,1),
          wasting_rate= round(mean(whz < -2, na.rm=T)*100,1),
@@ -46,10 +46,14 @@ tab4 <- d %>% group_by(studyid, subjid) %>%
   filter(imp_agedth ==0) %>%
   mutate(N_with_age_of_death=sum(dead),
          mean_age_death = round(mean(agedth, na.rm=T),0)) %>%
+  filter(agedays >30) %>%
+  mutate(postnatal_N=sum(dead),
+         mean_age_postnatal_death = round(mean(agedth, na.rm=T),0)) %>%
   slice(1) %>%
-  select(studyid, N_children,mortality_rate, deaths, N_with_age_of_death, mean_age_death, 
-         wasting_rate, wasting_rate_muac, stunting_rate, 
-         sev_wasting_rate, sev_wasting_rate_muac, sev_stunting_rate) %>%
+  select(studyid, country, N_children,mortality_rate, 
+         N_with_age_of_death, postnatal_N, mean_age_death, mean_age_postnatal_death,
+         wasting_rate, wasting_rate_muac,
+         sev_wasting_rate, sev_wasting_rate_muac) %>%
   arrange(mortality_rate)
 tab4
 
@@ -62,7 +66,7 @@ tab5 <- tabyl(dat= df, studyid, agecat, wast)$`1`
 
 table(df$studyid, df$wast)
 
-tab5 <- df %>% group_by(studyid) %>% 
+tab5 <- df %>% group_by(studyid, country) %>% 
   summarize(wast=sum(wast, na.rm = T),
             swast=sum(swast, na.rm = T),
             wast_muac=sum(wast_muac, na.rm = T),
