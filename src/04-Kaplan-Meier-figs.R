@@ -62,16 +62,23 @@ surv_plot <- function(df, Avar,  legend_labs= c("Not wasted <6mo", "Wasted <6mo"
   return(p)
 }
 
+p1 <- surv_plot(df=d, Avar="ever_co", legend_labs = c("Never wasted and stunted", "Ever wasted and stunted"))
+p2 <- surv_plot(df=d, Avar="ever_sstunt", legend_labs = c("Never severely stunted", "Ever severely stunted"))
+p3 <- surv_plot(df=d, Avar="ever_stunt", legend_labs = c("Never stunted", "Ever stunted"))
+p4 <- surv_plot(df=d, Avar="ever_stunt_uwt", legend_labs = c("Never stunted and underweight", "Ever stunted and underweight"))
+p5 <- surv_plot(df=d, Avar="ever_suwt", legend_labs = c("Never severely underweight", "Ever severely underweight"))
+p6 <- surv_plot(df=d, Avar="ever_swast", legend_labs = c("Never persistently wasted", "Ever persistently wasted"))
+p7 <- surv_plot(df=d, Avar="ever_uwt", legend_labs = c("Never underweight", "Ever underweight"))
+p8 <- surv_plot(df=d, Avar="ever_wast",  legend_labs= c("Never wasted", "Ever wasted"))
+p9 <- surv_plot(df=d, Avar="ever_wast_uwt", legend_labs = c("Never wasted and underweight", "Ever wasted and underweight"))
 
-
-p1 <- surv_plot(df=d, Avar="ever_wasted06",  legend_labs= c("Not wasted <6mo", "Wasted <6mo"))
-p2 <- surv_plot(df=d, Avar="ever_swasted06",  legend_labs= c("Not severely wasted <6mo", "Severely wasted <6mo"))
-p3 <- surv_plot(df=d, Avar="pers_wasted06",  legend_labs= c("Not persistently wasted <6mo", "Persistently wasted <6mo"))
-p4 <- surv_plot(df=d, Avar="ever_stunted06",  legend_labs= c("Not stunted <6mo", "Stunted <6mo"))
-p5 <- surv_plot(df=d, Avar="ever_sstunted06",  legend_labs= c("Not severely stunted <6mo", "Severely stunted <6mo"))
-p6 <- surv_plot(df=d, Avar="ever_underweight06",  legend_labs= c("Not underwight <6mo", "Underweight <6mo"))
-p7 <- surv_plot(df=d, Avar="ever_sunderweight06",  legend_labs= c("Not Severely underwight <6mo", "Severely underwight <6mo"))
-p8 <- surv_plot(df=d, Avar="ever_co06",  legend_labs= c("Not wasted and stunted <6mo", "Wasted and stunted <6mo"))
-
+# p1 <- surv_plot(df=d, Avar="ever_wasted06",  legend_labs= c("Not wasted <6mo", "Wasted <6mo"))
+# p2 <- surv_plot(df=d, Avar="ever_swasted06",  legend_labs= c("Not severely wasted <6mo", "Severely wasted <6mo"))
+# p3 <- surv_plot(df=d, Avar="pers_wasted06",  legend_labs= c("Not persistently wasted <6mo", "Persistently wasted <6mo"))
+# p4 <- surv_plot(df=d, Avar="ever_stunted06",  legend_labs= c("Not stunted <6mo", "Stunted <6mo"))
+# p5 <- surv_plot(df=d, Avar="ever_sstunted06",  legend_labs= c("Not severely stunted <6mo", "Severely stunted <6mo"))
+# p6 <- surv_plot(df=d, Avar="ever_underweight06",  legend_labs= c("Not underwight <6mo", "Underweight <6mo"))
+# p7 <- surv_plot(df=d, Avar="ever_sunderweight06",  legend_labs= c("Not Severely underwight <6mo", "Severely underwight <6mo"))
+# p8 <- surv_plot(df=d, Avar="ever_co06",  legend_labs= c("Not wasted and stunted <6mo", "Wasted and stunted <6mo"))
 
 saveRDS(list(p1, p2, p3, p4, p5, p6, p7, p8), file=paste0(here::here(),"/figures/plot-objects/kaplan_meier_objects.RDS"))
