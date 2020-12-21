@@ -124,7 +124,7 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid"){
     Vvars <- V[!(V %in% "studyid")]
     pooled <- res1 %>% group_by_at(vars(one_of(!!(Vvars)))) %>%
       do(poolHR(.)) %>% mutate(pooled=1, method="RE")
-    pooled <- res1 %>% group_by_at(vars(one_of(!!(Vvars)))) %>%
+    pooledFE <- res1 %>% group_by_at(vars(one_of(!!(Vvars)))) %>%
       do(poolHR(., method="FE")) %>% mutate(pooled=1, method="FE")
   }
   

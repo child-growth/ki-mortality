@@ -80,8 +80,12 @@ X_vector <- c("stunt", "wast","wast_muac","underwt",
 #    
 # }
 
-V="sex"
-Y="dead"
+#temp
+# res_sex_temp <- cox_meta(d=d, Xvar=X_vector[1], Yvar="dead", W=NULL, V="sex")
+# 
+# 
+# V="sex"
+# Y="dead"
 
 #All ages < 730 days
 res <- run_cox_meta(df=d, X_vector=X_vector, Y="dead", Wvars=Wvars, V=NULL)
@@ -103,6 +107,16 @@ res_age_sex_strat <- run_cox_meta_agestrat(d=d, age_strat=levels(d$agecat), X_ve
 res_age_region_strat <- run_cox_meta_agestrat(d=d, age_strat=levels(d$agecat), X_vector=X_vector, Y="dead", Wvars=Wvars, V="region")
 
 
+res$df <- "res"
+res_sex_strat$df <- "res_sex_strat" 
+res_region_strat$df <- "res_region_strat" 
+res_noPN$df <- "res_noPN" 
+res_noPN_sex_strat$df <- "res_noPN_sex_strat" 
+res_noPN_region_strat$df <- "res_noPN_region_strat"
+res_age_strat$df <- "res_age_strat" 
+res_age_sex_strat$df <- "res_age_sex_strat" 
+res_age_region_strat $df <- "res_age_region_strat"
+
 
 fullres <- bind_rows(res, res_sex_strat, res_region_strat, 
                      res_noPN, res_noPN_sex_strat, res_noPN_region_strat,
@@ -110,7 +124,10 @@ fullres <- bind_rows(res, res_sex_strat, res_region_strat,
           
 saveRDS(fullres, file=here("results/full_cox_results.RDS"))
 
-
+# d <- fullres
+# 
+# 
+# p_prim_pooled <- d %>% filter(pooled==1, !grepl("ever_",X), method=="RE", is.na(sex), is.na(region), agecat=="overall", adj==1)
 #TO do:
 
 
