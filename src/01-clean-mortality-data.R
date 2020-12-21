@@ -6,64 +6,64 @@ rm(list=ls())
 source(paste0(here::here(), "/0-config.R"))
 
 
-# clean DIVIDS data
-
-divids<-fread(paste0(ghapdata_dir,"FINAL.csv"), header = T,
-              drop = c( "AGEIMPFL",
-                        "BAZ", "HCAZ",      
-                        "REGCTRY", "REGCTYP",
-                        "HHID",    
-                        "FEEDING", "DURBRST", 
-                        "ENSTUNT", "FWTKG", "FBMI",
-                        "BRFEED", "SUMEP",   "SUMDIAR", "SUMDAYS",
-                        "PCTDIAR", "IMPSAN",  "SOAP",    "SAFEH2O", "H2OTIME",
-                        "CHICKEN", "COW",     "CATTLE",  "INCTOT", 
-                        "INCTOTU", "BFEDFL",  "EXBFEDFL","WEANFL",  "ANMLKFL", "PWMLKFL",
-                        "FORMLKFL","BOTTLEFL","H20FEDFL","OTHFEDFL","SLDFEDFL","NBFYES",   "CMFDINT", "DIARFL",  "LSSTLFL",
-                        "NUMLS",   "BLDSTLFL","DIARFL_R","LSSTFL_R","NUMLS_R", "BLDSTL_R",
-                        "DUR_R"))
-gc()
-
-colnames(divids) <- tolower(colnames(divids))
-
-# subset to only DIVIDS study
-dim(divids)
-divids <- divids[(studyid %in% c("DIVIDS"))]
-dim(divids)
-gc()
-
-# subset columns
-divids <- subset(divids, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz, muaz))%>%
-  filter(agedays > 0)
-gc()
-divids$subjid <- as.character(divids$subjid)
-
-
-# clean VITALPAK-Pregnancy data
-vitalpak_preg <- read.csv(paste0(other_mortality_path, "VITALPAK_Pregnancy.csv"))
-colnames(vitalpak_preg) <- tolower(colnames(vitalpak_preg))
-gc()
-
-# subset columns
-vitalpak_preg <- subset(vitalpak_preg, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))%>%
-  filter(agedays > 0)
-gc()
-vitalpak_preg$subjid <- as.character(vitalpak_preg$subjid)
-
-
-
-# clean I-LINS Dyad Ghana data
-ilinsdyadghana <- read.csv(paste0(other_mortality_path, "full_ki1033518_DYAD_G_201809.csv"))
-colnames(ilinsdyadghana) <- tolower(colnames(ilinsdyadghana))
-gc()
-
-# subset columns
-ilinsdyadghana <- subset(ilinsdyadghana, select=c(studyid, country, subjid, sex, agedays, dead, agedth, haz, whz, waz, muaz)) %>%
-                         filter(agedays > 0)
-gc()
-
-ilinsdyadghana$subjid <- as.character(ilinsdyadghana$subjid)
-ilinsdyadghana$studyid[ilinsdyadghana$studyid == "ki1033518-iLiNS-DYAD-G"] <- "iLiNS-DYAD-G"
+# # clean DIVIDS data
+# 
+# divids<-fread(paste0(ghapdata_dir,"FINAL.csv"), header = T,
+#               drop = c( "AGEIMPFL",
+#                         "BAZ", "HCAZ",      
+#                         "REGCTRY", "REGCTYP",
+#                         "HHID",    
+#                         "FEEDING", "DURBRST", 
+#                         "ENSTUNT", "FWTKG", "FBMI",
+#                         "BRFEED", "SUMEP",   "SUMDIAR", "SUMDAYS",
+#                         "PCTDIAR", "IMPSAN",  "SOAP",    "SAFEH2O", "H2OTIME",
+#                         "CHICKEN", "COW",     "CATTLE",  "INCTOT", 
+#                         "INCTOTU", "BFEDFL",  "EXBFEDFL","WEANFL",  "ANMLKFL", "PWMLKFL",
+#                         "FORMLKFL","BOTTLEFL","H20FEDFL","OTHFEDFL","SLDFEDFL","NBFYES",   "CMFDINT", "DIARFL",  "LSSTLFL",
+#                         "NUMLS",   "BLDSTLFL","DIARFL_R","LSSTFL_R","NUMLS_R", "BLDSTL_R",
+#                         "DUR_R"))
+# gc()
+# 
+# colnames(divids) <- tolower(colnames(divids))
+# 
+# # subset to only DIVIDS study
+# dim(divids)
+# divids <- divids[(studyid %in% c("DIVIDS"))]
+# dim(divids)
+# gc()
+# 
+# # subset columns
+# divids <- subset(divids, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz, muaz))%>%
+#   filter(agedays > 0)
+# gc()
+# divids$subjid <- as.character(divids$subjid)
+# 
+# 
+# # clean VITALPAK-Pregnancy data
+# vitalpak_preg <- read.csv(paste0(other_mortality_path, "VITALPAK_Pregnancy.csv"))
+# colnames(vitalpak_preg) <- tolower(colnames(vitalpak_preg))
+# gc()
+# 
+# # subset columns
+# vitalpak_preg <- subset(vitalpak_preg, select=c(studyid, country, subjid, sex, agedays, dead, agedth, causedth, haz, whz, waz))%>%
+#   filter(agedays > 0)
+# gc()
+# vitalpak_preg$subjid <- as.character(vitalpak_preg$subjid)
+# 
+# 
+# 
+# # clean I-LINS Dyad Ghana data
+# ilinsdyadghana <- read.csv(paste0(other_mortality_path, "full_ki1033518_DYAD_G_201809.csv"))
+# colnames(ilinsdyadghana) <- tolower(colnames(ilinsdyadghana))
+# gc()
+# 
+# # subset columns
+# ilinsdyadghana <- subset(ilinsdyadghana, select=c(studyid, country, subjid, sex, agedays, dead, agedth, haz, whz, waz, muaz)) %>%
+#                          filter(agedays > 0)
+# gc()
+# 
+# ilinsdyadghana$subjid <- as.character(ilinsdyadghana$subjid)
+# ilinsdyadghana$studyid[ilinsdyadghana$studyid == "ki1033518-iLiNS-DYAD-G"] <- "iLiNS-DYAD-G"
 
 ##########################################################
 
@@ -85,7 +85,8 @@ df$manuscript_cohort <- 1
 divids$manuscript_cohort <- 0
 vitalpak_preg$manuscript_cohort <- 0
 ilinsdyadghana$manuscript_cohort <- 0
-d <- bind_rows(df, divids, vitalpak_preg, ilinsdyadghana)
+#d <- bind_rows(df, divids, vitalpak_preg, ilinsdyadghana)
+d<-df
 table(d$studyid, d$dead)
 
 
@@ -195,7 +196,46 @@ d$imp_agedth <- ifelse(is.na(d$agedth) & d$dead==1, 1, 0)
 d$agedth[is.na(d$agedth)] <- d$maxage[is.na(d$agedth)] 
 
 
+#Merge in covariates
+cov<-readRDS(paste0(ghapdata_dir,"FINAL_clean_covariates.rds"))
+
+#Remove spaces and punctuation from factors
+clean_factor <- function(x){
+  if(is.factor(x)){
+    x <- as.character(x)
+    x <- gsub("[[:punct:]]", " ", x)
+    x <- gsub(" ", "", x)
+    x <- gsub(" ", "", x)
+    x <- gsub(" ", "", x)
+    x <- factor(x)
+  }
+ return(x)
+}
+
+colnames(cov)
+for(i in 19:ncol(cov)){
+  cov[,i] <- clean_factor(cov[,i])
+}
+head(cov)
+
+
+
+#merge covariates
+d$subjid <- as.character(d$subjid)
+dim(d)
+d <- left_join(d, cov[, c("studyid", "subjid", "country", setdiff(colnames(cov),colnames(d)))], 
+               by=c("studyid", "subjid", "country"))
+dim(d)
+
+d <- droplevels(d)
+
+#Save final dataset
 saveRDS(d, mortality_age_path)
+
+
+
+
+
 
 
 
@@ -306,5 +346,6 @@ for (i in country){
   print(dim(imputed_iv))
   print(dim(imputed_v))
 }
+
 
   

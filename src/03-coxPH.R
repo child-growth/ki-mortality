@@ -3,7 +3,13 @@
 rm(list=ls())
 source(paste0(here::here(), "/0-config.R"))
 
+#Set adjustment covariates
+Wvars <- c("sex", "arm", "brthmon", "vagbrth", "hdlvry", "single", "trth2o",       
+ "cleanck",       "impfloor",      "hfoodsec",      "hhwealth_quart","W_mage",        "W_mhtcm",       "W_mwtkg",      
+  "W_mbmi",        "W_fage",        "W_fhtcm",       "W_meducyrs",    "W_feducyrs",    "W_nrooms",      "W_nhh",        
+  "W_nchldlt5",    "W_parity",      "impsan",        "safeh20")     
 
+#load data
 d <- readRDS(mortality_age_path)
 
 d$subjid <- as.numeric(d$subjid)
@@ -51,40 +57,62 @@ d <- d %>% filter(imp_agedth==0,
 # res <- bind_rows(res1, poolHR) %>%
 #   mutate(X= "ever_wast", Y= "dead")
 
-
-#d <- d %>% filter(studyid=="VITAMIN-A")
-res <- cox_meta(X="ever_stunt")
-
-
-
-X_vector <- c("stunt", "wast","underwt",          
-              "sstunt",          "swast",            "sunderwt",         "stunt_uwt",       
+X_vector <- c("stunt", "wast","wast_muac","underwt",          
+              "sstunt",          "swast","swast_muac",            "sunderwt",         "stunt_uwt",       
               "wast_uwt",         "co",              
-              # "cum_stunt",        "cum_wast",         "cum_uwt",
-              # "cum_sstunt",       "cum_swast",        "cum_suwt",
-              # "cum_stunt_uwt",    "cum_wast_uwt",    "cum_co",
-              "ever_stunt",       "ever_wast",        "ever_uwt",         "ever_sstunt",     
-              "ever_swast",       "ever_suwt",        "ever_stunt_uwt",   "ever_wast_uwt",    "ever_co")
-
-full_res <- NULL
-for(i in X_vector){
-  res <- cox_meta(X=i)
-  full_res <- bind_rows(full_res, res)
-}
+              "ever_stunt",       "ever_wast", "ever_wast_muac",        "ever_uwt",         "ever_sstunt",     
+              "ever_swast", "ever_swast_muac","ever_suwt",        "ever_stunt_uwt",   "ever_wast_uwt",    "ever_co")
 
 
 
-dim(full_res)
-table(full_res$X)           
-saveRDS(full_res, file=here("results/full_cox_results.RDS"))
+# df <- d %>% filter(studyid=="Keneba")
+# 
+# Yvar="dead"
+# age=NULL
+# Xvar="wast"
+# W=Wvars
+# d=df
+# #res <- ki_coxph(d=df, Xvar="ever_stunt", W=Wvars)
+# 
+# for(i in X_vector){
+#    cat(i)
+#    res <- ki_coxph(d=df, Xvar=i, W=Wvars)
+#    
+# }
+
+V="sex"
+Y="dead"
+
+#All ages < 730 days
+res <- run_cox_meta(df=d, X_vector=X_vector, Y="dead", Wvars=Wvars, V=NULL)
+res_sex_strat <- run_cox_meta(df=d, X_vector=X_vector, Y="dead", Wvars=Wvars, V="sex")
+res_region_strat <- run_cox_meta(df=d, X_vector=X_vector, Y="dead", Wvars=Wvars, V="region")
+
+#Dropping prenatal deaths
+res_noPN <- run_cox_meta(df=d%>% filter(agecat!="(0,30]"),
+                    X_vector=X_vector, Y="dead", Wvars=Wvars, V=NULL, agecat="1-24 months")
+res_noPN_sex_strat <- run_cox_meta(df=d%>% filter(agecat!="(0,30]"),
+                              X_vector=X_vector, Y="dead", Wvars=Wvars, V="sex", agecat="1-24 months")
+res_noPN_region_strat <- run_cox_meta(df=d%>% filter(agecat!="(0,30]"),
+                                 X_vector=X_vector, Y="dead", Wvars=Wvars, V="region", agecat="1-24 months")
+
+
+#Age-strat, starting from birth
+res_age_strat <- run_cox_meta_agestrat(d=d, age_strat=levels(d$agecat), X_vector=X_vector, Y="dead", Wvars=Wvars, V=NULL)
+res_age_sex_strat <- run_cox_meta_agestrat(d=d, age_strat=levels(d$agecat), X_vector=X_vector, Y="dead", Wvars=Wvars, V="sex")
+res_age_region_strat <- run_cox_meta_agestrat(d=d, age_strat=levels(d$agecat), X_vector=X_vector, Y="dead", Wvars=Wvars, V="region")
+
+
+
+fullres <- bind_rows(res, res_sex_strat, res_region_strat, 
+                     res_noPN, res_noPN_sex_strat, res_noPN_region_strat,
+                     res_age_strat, res_age_sex_strat, res_age_region_strat)
+          
+saveRDS(fullres, file=here("results/full_cox_results.RDS"))
 
 
 #TO do:
 
-#XXX need to fix ever_... analyses. Seems to work within function, but not within do()... try by cohort
-
-#XXXX Need to fix - using agedays in the cox regression, but often agedeath comes later
-   #Need to double check I'm setting up the analysis correctly
 
 #0)
 # Make sure "ever" variables cause function to subset children to the last measure
@@ -98,10 +126,10 @@ saveRDS(full_res, file=here("results/full_cox_results.RDS"))
 
    #do this by checking the diff between agedays and death in the last obs for children who died
    #drop the child from the analysis if not. Coded like this:
-   d <- d %>% group_by(studyid, subjid) %>% 
-       mutate(diff_death = ifelse(dead==1, agedth - agedays, NA),
-              drop_due_to_time_gap = max(ifelse(diff_death > 30.4167*6 | diff_death < 7, 1, 0))) %>%
-       filter(drop_due_to_time_gap!=1)
+   # d <- d %>% group_by(studyid, subjid) %>% 
+   #     mutate(diff_death = ifelse(dead==1, agedth - agedays, NA),
+   #            drop_due_to_time_gap = max(ifelse(diff_death > 30.4167*6 | diff_death < 7, 1, 0))) %>%
+   #     filter(drop_due_to_time_gap!=1)
    #Note... this may be dropping too many children... investigate further
 
 
