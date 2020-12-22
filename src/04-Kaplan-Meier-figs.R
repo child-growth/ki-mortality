@@ -8,6 +8,9 @@ library(cowplot)
 #read in mortality data
 d <- readRDS(mortality_age_path)
 
+#drop studies
+d <- d %>% filter(!(studyid %in% c("VITALPAK-Pregnancy","iLiNS-DYAD-G","DIVIDS")))
+
 #transform data to form for survfit() function
 d <- d %>% mutate(status = dead+1) #%>%
 #filter(maxage <= 730)
