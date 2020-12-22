@@ -27,6 +27,7 @@ pander(tab1)
 pander(tab2)
 pander(tab3)
 pander(tab4)
+pander(tab5)
 ```
 
 
@@ -35,6 +36,7 @@ kable(tab1)
 kable(tab2)
 kable(tab3)
 kable(tab4)
+kable(tab5)
 ```
 
 
