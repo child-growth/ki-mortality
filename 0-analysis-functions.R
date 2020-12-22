@@ -117,7 +117,7 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid"){
   res1 <- res1 %>% filter(sparseN > 0)
   
   
-  if(V=="studyid"){
+  if(sum(V!="studyid")==0){
     pooled <- poolHR(res1) %>% mutate(pooled=1, method="RE")
     pooledFE <- poolHR(res1, method="FE") %>% mutate(pooled=1, method="FE")
   }else{
@@ -235,13 +235,13 @@ cox_prescreen<-function (d, Ws, pval = 0.2, print = TRUE){
     cat("\nLikelihood Ratio Test P-values:\n")
     print(round(LRp, 5))
     if (sum(p20) > 0) {
-      LRps <- matrix(LRp[p20 == 1, ], ncol = 1)
-      rownames(LRps) <- names(Ws)[p20 == 1]
-      colnames(LRps) <- "P-value"
-      LRps <- LRps %>% as.data.frame() %>% arrange(`P-value`)
+      LRp <- matrix(LRp[p20 == 1, ], ncol = 1)
+      rownames(LRp) <- names(Ws)[p20 == 1]
+      colnames(LRp) <- "P-value"
+      LRp <- LRp %>% as.data.frame() %>% arrange(`P-value`)
       cat(paste("\n\nCovariates selected (P<", pval, 
                 "):\n", sep = ""))
-      print(LRps)
+      print(LRp)
     }
     else {
       cat(paste("\nNo covariates were associated with the outcome at P<", 
@@ -249,7 +249,7 @@ cox_prescreen<-function (d, Ws, pval = 0.2, print = TRUE){
     }
   }
   if (sum(p20) > 0) {
-    return(rownames(LRps))
+    return(rownames(LRp))
   }else{
     return(NULL)
     
