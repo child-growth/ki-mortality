@@ -111,9 +111,9 @@ p_ci_pooled
 
 
 
-p_prim_pooled_sex <- d %>% filter(pooled==1, !grepl("ever_",X), method=="RE", !is.na(sex), is.na(region), agecat=="overall", adj==1, df=="res") %>% 
+p_prim_pooled_sex <- d %>% filter(pooled==1, !grepl("ever_",X), method=="RE", !is.na(sex), is.na(region), agecat=="overall", adj==1) %>% 
   droplevels(.) %>%
-  ggplot(., aes(y=HR, x=Xname, group=sex),color="black") +
+  ggplot(., aes(y=HR, x=Xname, color=sex, group=sex)) +
   geom_point(position = position_dodge(0.6)) + 
   geom_linerange(aes(ymin=ci.lb, ymax=ci.ub ), position = position_dodge(0.6)) +
   geom_hline(yintercept = 1) +
@@ -122,6 +122,8 @@ p_prim_pooled_sex <- d %>% filter(pooled==1, !grepl("ever_",X), method=="RE", !i
   xlab("") + ylab("Hazard Ratio")
 
 p_prim_pooled_sex
+
+#Need to figure out the studies being used to pool Wasted (MUAC) that cause such a large confidence interval
 
 
 #dropping neonatal deaths
