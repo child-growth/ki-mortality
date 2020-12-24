@@ -75,20 +75,22 @@ df <- subset(df, select= c(studyid, country, subjid, sex, agedays, dead, agedth,
   filter(agedays > 0)
 gc()
 
-table(divids$dead)
-table(vitalpak_preg$dead)
-table(ilinsdyadghana$dead)
+
+
 
 
 #merge manuscript cohorts and others
 df$manuscript_cohort <- 1
-divids$manuscript_cohort <- 0
-vitalpak_preg$manuscript_cohort <- 0
-ilinsdyadghana$manuscript_cohort <- 0
+# divids$manuscript_cohort <- 0
+# vitalpak_preg$manuscript_cohort <- 0
+# ilinsdyadghana$manuscript_cohort <- 0
 #d <- bind_rows(df, divids, vitalpak_preg, ilinsdyadghana)
 d<-df
 table(d$studyid, d$dead)
 
+
+#mark regions
+d <- mark_region(d)
 
 #Get maximum age that anthropometry was recorded
 d <- d %>% group_by(studyid, country, subjid) %>% mutate(maxage = max(agedays))

@@ -90,7 +90,7 @@ ki_coxph <- function(d, Xvar, Yvar="dead", W=NULL){
 # Wrapper function for cox PH meta-analysis
 #---------------------------------------------------------
 
-cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid"){
+cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid", N_events=5){
   
   #Subset to last obs if using CI
   if(grepl("ever_",Xvar)){
@@ -114,7 +114,7 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid"){
     mutate(pooled=0)
   
   #Drop estimates from sparse data
-  res1 <- res1 %>% filter(sparseN > 0)
+  res1 <- res1 %>% filter(sparseN >= 5)
   
   
   if(sum(V!="studyid")==0){
@@ -294,4 +294,48 @@ poolHR <- function(d, method="REML"){
   
   
   return(est)
+}
+
+
+mark_region <- function(df){
+  
+  df$country <- as.character(df$country)
+  df <- df %>% mutate(country = toupper(country),
+                      region = case_when(
+                        country=="BANGLADESH" | country=="INDIA"|
+                          country=="NEPAL" | country=="PAKISTAN"|
+                          country=="PHILIPPINES"| country=="CHINA"|
+                          country=="THAILAND"|country=="SINGAPORE"|
+                          country=='OMAN'~ "South Asia",
+                        country=="KENYA"|
+                          country=="GHANA"|
+                          country=="BURKINA FASO"|
+                          country=="GUINEA-BISSAU"|
+                          country=="MALAWI"|
+                          country=="MALI"|
+                          country=="MOZAMBIQUE"|
+                          country=="SOUTH AFRICA"|
+                          country=="TANZANIA, UNITED REPUBLIC OF"|
+                          country=="TANZANIA"|
+                          country=="ZIMBABWE"|
+                          country=="GAMBIA"|
+                          country=="CONGO, THE DEMOCRATIC REPUBLIC OF" ~ "Africa",
+                        country=="BRAZIL" | country=="GUATEMALA" |
+                          country=="PERU"|country=='ECUADOR' | country=="MEXICO" |
+                          country=="BELIZE" ~ "Latin America",
+                        country=="UNITED STATES" | country=="UNITED KINGDOM" | country=="ITALY"|
+                          country== "NETHERLANDS"|
+                          country=="BELARUS" ~ "N.America & Europe",
+                        TRUE ~ "Other"
+                      ))
+  
+  
+  df$region <- factor(df$region, 
+                      levels = c("Africa",
+                                 "South Asia",
+                                 "Latin America",
+                                 "N.America & Europe",
+                                 "Other"))
+  
+  return(df)
 }
