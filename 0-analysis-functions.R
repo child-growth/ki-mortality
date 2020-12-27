@@ -106,7 +106,7 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid", N_events=5){
     W <- W[!(W %in% V)]
   }
   
-  res1 <- d %>% 
+  res <- d %>% 
     filter(!is.na(X) & !is.na(Y)) %>% 
     group_by_at(vars(one_of(!!(V)))) %>%
     mutate(Ndead=sum(Y)) %>% filter(Ndead>4) %>% droplevels(.) %>%
@@ -114,7 +114,7 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid", N_events=5){
     mutate(pooled=0)
   
   #Drop estimates from sparse data
-  res1 <- res1 %>% filter(sparseN >= 5)
+  res1 <- res %>% filter(sparseN >= 5)
   
   
   if(sum(V!="studyid")==0){
@@ -122,16 +122,21 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid", N_events=5){
     pooledFE <- poolHR(res1, method="FE") %>% mutate(pooled=1, method="FE")
   }else{
     Vvars <- V[!(V %in% "studyid")]
+    
+    #Drop studies without both groups
+    res1 <- res1 %>% group_by(studyid) %>%
+      mutate(N_est = n()) %>% filter(N_est!=1)
+    
     pooled <- res1 %>% group_by_at(vars(one_of(!!(Vvars)))) %>%
       do(poolHR(.)) %>% mutate(pooled=1, method="RE")
     pooledFE <- res1 %>% group_by_at(vars(one_of(!!(Vvars)))) %>%
       do(poolHR(., method="FE")) %>% mutate(pooled=1, method="FE")
   }
   
-  res <- bind_rows(res1, pooled, pooledFE) %>%
+  fullres <- bind_rows(res, pooled, pooledFE) %>%
     mutate(X= !!(Xvar), Y= !!(Yvar))
   
-  return(res)
+  return(fullres)
 }
 
 
