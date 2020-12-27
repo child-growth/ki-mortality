@@ -107,6 +107,7 @@ d$dead[!is.na(d$agedth) & is.na(d$dead)] <- 1
 d$dead[is.na(d$agedth) & is.na(d$dead)] <- 0
 
 # drop all rows where both `haz`` and `waz` are missing 
+table(d$dead, is.na(d$haz) & is.na(d$waz))
 d <- d %>% filter(!(is.na(haz) & is.na(waz)))
 
 table(d$studyid, d$dead)
@@ -115,8 +116,8 @@ d %>% group_by(studyid, subjid) %>% arrange(agedays) %>% slice(1) %>%
 
 #Make sure only final observation is marked dead
 d <- d %>% group_by(studyid, subjid) %>% arrange(agedays) %>%
-           mutate(dead = ifelse(agedays==last(agedays), dead, 0),
-                  final_obs = ifelse(agedays==last(agedays), 1, 0))
+           mutate(dead = ifelse(agedays==max(agedays), dead, 0),
+                  final_obs = ifelse(agedays==max(agedays), 1, 0))
 table(d$studyid, d$dead)
 
 
@@ -178,21 +179,27 @@ d <- d %>% arrange(studyid, country, subjid, agedays) %>%
     ever_swast_muac = max(cum_swast_muac)
    )
 
-#Note: add velocity measures?
-
-table(d$studyid, d$dead)
-
 
 #drop studies with <5 deaths
 d <- d %>% group_by(studyid, country) %>% filter(sum(dead, na.rm=T)>4)
 table(d$studyid, d$dead)
 prop.table(table(d$studyid, d$dead),1)*100
 
-#drop missing death variable - should I do this for coxPH model?
-#d <- d %>% filter(!is.na(dead))
 
 #Create an indicator for when age of death is imputed.
 d$imp_agedth <- ifelse(is.na(d$agedth) & d$dead==1, 1, 0)
+
+#Check agedth when maxage is larger
+table(d$agedth > d$maxage)
+table(d$agedth >= d$maxage)
+
+df <- d %>% filter(agedth < maxage)
+summary(df$agedth)
+summary(df$agedth - df$maxage)
+
+#Impute agedth when maxage is larger
+d$imp_agedth[d$agedth < d$maxage] <- 1
+d$agedth[d$agedth < d$maxage] <- d$maxage[d$agedth < d$maxage]
 
 #impute missing agedth with max age
 d$agedth[is.na(d$agedth)] <- d$maxage[is.na(d$agedth)] 

@@ -90,7 +90,7 @@ ki_coxph <- function(d, Xvar, Yvar="dead", W=NULL){
 # Wrapper function for cox PH meta-analysis
 #---------------------------------------------------------
 
-cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid", N_events=5){
+cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V=c("studyid","region"), N_events=5){
   
   #Subset to last obs if using CI
   if(grepl("ever_",Xvar)){
@@ -114,16 +114,20 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid", N_events=5){
     mutate(pooled=0)
   
   #Drop estimates from sparse data
-  res1 <- res %>% filter(sparseN >= 5)
-  
+  res1 <- res %>% filter(sparseN >= 5) %>% ungroup()
+  #res1 <- mark_region(res1)
   
   if(sum(V!="studyid")==0){
     pooled <- poolHR(res1) %>% mutate(pooled=1, method="RE")
     pooledFE <- poolHR(res1, method="FE") %>% mutate(pooled=1, method="FE")
-  }else{
-    Vvars <- V[!(V %in% "studyid")]
     
-    #Drop studies without both groups
+    #get regional estimates
+    pooled_region <- res1 %>% group_by(region) %>%
+      do(poolHR(.)) %>% mutate(pooled=1, method="RE")    
+  }else{
+    Vvars <- V[!(V %in% c("studyid","region"))]
+    
+    #Drop studies without both groups if
     res1 <- res1 %>% group_by(studyid) %>%
       mutate(N_est = n()) %>% filter(N_est!=1)
     
@@ -131,9 +135,13 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid", N_events=5){
       do(poolHR(.)) %>% mutate(pooled=1, method="RE")
     pooledFE <- res1 %>% group_by_at(vars(one_of(!!(Vvars)))) %>%
       do(poolHR(., method="FE")) %>% mutate(pooled=1, method="FE")
+    
+    #get regional estimates
+    pooled_region <- res1 %>% group_by_at(vars(one_of(!!(c(Vvars,"region"))))) %>%
+      do(poolHR(.)) %>% mutate(pooled=1, method="RE")  
   }
   
-  fullres <- bind_rows(res, pooled, pooledFE) %>%
+  fullres <- bind_rows(res, pooled, pooledFE, pooled_region) %>%
     mutate(X= !!(Xvar), Y= !!(Yvar))
   
   return(fullres)
@@ -143,9 +151,9 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V="studyid", N_events=5){
 run_cox_meta <- function(df=d, X_vector, Y="dead", Wvars, V=NULL, agecat=NULL){
   
   if(is.null(V)){
-    Vvars <- "studyid"
+    Vvars <- c("studyid","country")
   }else{
-    Vvars <- c("studyid",V)
+    Vvars <- c("studyid","country",V)
   }
   
 
