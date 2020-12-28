@@ -117,7 +117,7 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V=c("studyid","region"), N_
   res1 <- res %>% filter(sparseN >= 5) %>% ungroup()
   #res1 <- mark_region(res1)
   
-  if(sum(V!="studyid")==0){
+  if(sum(!(V %in% c("studyid","region")))==0){
     pooled <- poolHR(res1) %>% mutate(pooled=1, method="RE")
     pooledFE <- poolHR(res1, method="FE") %>% mutate(pooled=1, method="FE")
     
@@ -151,9 +151,9 @@ cox_meta <- function(d=d, Xvar, Yvar="dead", W=NULL, V=c("studyid","region"), N_
 run_cox_meta <- function(df=d, X_vector, Y="dead", Wvars, V=NULL, agecat=NULL){
   
   if(is.null(V)){
-    Vvars <- c("studyid","country")
+    Vvars <- c("studyid","region")
   }else{
-    Vvars <- c("studyid","country",V)
+    Vvars <- c("studyid","region",V)
   }
   
 
@@ -283,11 +283,11 @@ poolHR <- function(d, method="REML"){
   
     
     fit<-NULL
-    try(fit<-rma(yi=est, sei=se, data=d, method=method, measure="RR"))
+    try(fit<-rma(yi=est, sei=se, data=d, method=method, measure="RR"), silent = TRUE)
     if(method=="REML"){
-      if(is.null(fit)){try(fit<-rma(yi=est, sei=se, data=d, method="ML", measure="RR"))}
-      if(is.null(fit)){try(fit<-rma(yi=est, sei=se, data=d, method="DL", measure="RR"))}
-      if(is.null(fit)){try(fit<-rma(yi=est, sei=se, data=d, method="HE", measure="RR"))}
+      if(is.null(fit)){try(fit<-rma(yi=est, sei=se, data=d, method="ML", measure="RR"), silent = TRUE)}
+      if(is.null(fit)){try(fit<-rma(yi=est, sei=se, data=d, method="DL", measure="RR"), silent = TRUE)}
+      if(is.null(fit)){try(fit<-rma(yi=est, sei=se, data=d, method="HE", measure="RR"), silent = TRUE)}
     }
     if(is.null(fit)){
       est<-data.frame(logHR.psi=NA, logSE=NA, HR=NA, HR.CI1=NA,  HR.CI2=NA)
