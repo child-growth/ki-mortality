@@ -63,6 +63,7 @@ df <- d %>% filter(agecat!="(0,30]" & agecat!="(730,7e+03]",
                    dead==1, imp_agedth==0, agedth < 730,
                    agedth- agedays > 6 & agedth- agedays < 6*30.4167)
 
+
 tab5 <- df %>% group_by(studyid, country) %>% 
   summarize(wast=sum(wast, na.rm = T),
             swast=sum(swast, na.rm = T),
